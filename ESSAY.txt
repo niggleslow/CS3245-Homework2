@@ -1,0 +1,53 @@
+1. You will observe that a large portion of the terms in the dictionary are numbers. However, we
+normally do not use numbers as query terms to search. Do you think it is a good idea to remove
+these number entries from the dictionary and the postings lists? Can you propose methods to
+normalize these numbers? How many percentage of reduction in disk storage do you observe after
+removing/normalizing these numbers?
+
+A: 
+No, I do not think it is a good idea to simply remove number entries from the dictionary and postings lists. As what I recall from the lecture, numbers do play an increasingly important role in semantics nowadays, with the example of error codes (i.e. 404 AND 'NOT' AND 'FOUND'). Another example of important numbers would be dates, where there are often data formats used that are a hybrid of words and numbers (i.e. 20 November 1998)
+
+I would suggest only storing numbers that are "meaningful" within the general context of the corpus. For example, in this case we are using a corpus from Reuters, which is a news related website with focus on business. Hence, we could only index numbers that follow a certain date format, i.e. 20-12-2002 and also numbers that follow a currency symbol.
+
+Otherwise, removing all numbers can also be an option due to it's ease of inclusion into the existing code.
+
+Using my program, the following results were had:
+
+Before removing numbers-
+dictionary.txt 	933KB
+postings.txt	36339KB
+
+After removing numbers-
+diciontary.txt	590KB
+postings.txt	31453KB 
+
+Reduction of: 
+~36.7% for dictionary file
+~13.4% for postings file
+
+
+2. What do you think will happen if we remove stop words from the dictionary and postings file? How
+does it affect the searching phase?
+
+A:
+In terms of storage space, both the dictionary and the postings file will be affected. But as mentioned in tutorial, the postings file will be affected more since stop words are by nature, words that tends to appear many times across documents. Hence, by eliminating stop words, the dictionary and postings files will shrink in size, though postings file will shrink by a larger margin.
+
+If we remove stop words totally and process the query beforehand to remove the aforementioned words from the query, then searching will be quicker since there will be less time spent processing the usually long postings lists of stop words. However, the overall Boolean query should become less restrictive since conditions are essentially removed from the query through the removal of stop words.
+
+3. The NLTK tokenizer may not correctly tokenize all terms. What do you observe from the resulting
+terms produced by sent_tokenize() and word_tokenize() ? Can you propose rules to further
+refine these results?
+
+A:
+
+>> sent_tokenize() : 
+
+Does a pretty good job of identifying end and start of sentences. However, one minor thing I noticed is as follows:
+nltk.sent_tokenize("I don't like this... We should go soon.")
+We will get ["I don't like this... We should go soon."] instead of an expected ["I don't like this...", "We should go soon."]
+
+Maybe we could add more rules such as recognising the "..." as a possible end of sentence indicator, thus refining the sentence tokenizing accuracy.
+
+>> word_tokenize() :
+
+I noticed that there are quite a few stemmed tokens in the dictionary that have hyphens in them, for example: sterling-bas, sterling-denomin, sterling-target. This might reduce the accuracy for retrieving documents that possess the stemmed version of sterling, denomin, target, etc. Hence, I would suggest either merging the two words together by removing the hyphen or to split the two words totally through replacing the hyphen with a whitespace.
